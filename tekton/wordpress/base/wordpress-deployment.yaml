@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: wordpress
+  name: wordpress
+  namespace: wordpress-tekton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: wordpress
+  template:
+    metadata:
+      labels:
+        name: wordpress
+    spec:
+      initContainers:
+      - name: init-container
+        image: quay.io/rcook/wordpress:1.0
+        command: ["/bin/bash","-c"]
+        args: [ "if [ ! -f /opt/app-root/save/wp-config-sample.php ]; then cp -rp /opt/app-root/src/* /opt/app-root/save/; fi" ]
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /opt/app-root/save
+      containers:
+      - image: quay.io/rcook/wordpress:1.0
+        imagePullPolicy: Always
+        name: wordpress
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        volumeMounts:
+        - name: wp-config
+          mountPath: /opt/app-root/src/wp-config.php
+          subPath: wp-config.php
+          readOnly: false
+        - name: wordpress-persistent-storage
+          mountPath: /opt/app-root/src
+      volumes:
+      - name: wp-config
+        secret:
+          secretName: wp-config
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pv-claim

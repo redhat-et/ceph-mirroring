@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    k8s.v1.cni.cncf.io/networks-status: |-
+      [{
+          "name": "openshift-sdn",
+          "interface": "eth0",
+          "ips": [
+              "10.129.2.9"
+          ],
+          "dns": {},
+          "default-route": [
+              "10.129.2.1"
+          ]
+      }]
+    openshift.io/scc: restricted
+  creationTimestamp: null
+  generateName: rook-ceph-tools-7fdf876d89-2
+  labels:
+    app: rook-ceph-tools
+spec:
+  containers:
+  - args:
+    - -g
+    - --
+    - /usr/local/bin/toolbox.sh
+    command:
+    - /tini
+    env:
+    - name: ROOK_ADMIN_SECRET
+      valueFrom:
+        secretKeyRef:
+          key: admin-secret
+          name: rook-ceph-mon
+    image: rook/ceph:v1.3.0-beta.1
+    imagePullPolicy: IfNotPresent
+    name: rook-ceph-tools
+    resources: {}
+    securityContext:
+      capabilities:
+        drop:
+        - KILL
+        - MKNOD
+        - SETGID
+        - SETUID
+      runAsUser: 1000530000
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /etc/ceph
+      name: ceph-config
+    - mountPath: /etc/rook
+      name: mon-endpoint-volume
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-96nb5
+      readOnly: true
+  dnsPolicy: ClusterFirstWithHostNet
+  enableServiceLinks: true
+  imagePullSecrets:
+  - name: default-dockercfg-hh887
+  nodeName: ip-10-0-164-160.ec2.internal
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 1000530000
+    seLinuxOptions:
+      level: s0:c23,c12
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 5
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: data
+        path: mon-endpoints
+      name: rook-ceph-mon-endpoints
+    name: mon-endpoint-volume
+  - emptyDir: {}
+    name: ceph-config
+  - name: default-token-96nb5
+    secret:
+      defaultMode: 420
+      secretName: default-token-96nb5

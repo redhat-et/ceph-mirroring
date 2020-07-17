@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: rbd-promote-images
+spec:
+  params:
+    - name: p
+      type: string 
+      default: "scottpool2"
+    - name: i1
+      type: string
+      default: "scottpool2/mysql-pv-claim-wordpress-tekton90f1ce51-9082-11ea-a48b-0a580a82024a"
+    - name: i2
+      type: string
+      default: "scottpool2/wp-pv-claim-wordpress-tekton90f1cf28-9082-11ea-a48b-0a580a82024a"
+  tasks:
+    - name: command-promote-images
+      taskRef:
+        name: create-configmap-command
+      params:
+        - name: pool
+          value: "$(params.p)"
+        - name: action
+          value: "promote"
+        - name: image1
+          value: "$(params.i1)"
+        - name: image2
+          value: "$(params.i2)"
+
+    - name: execute-promote-command
+      retries: 3
+      taskRef:
+        name: execute-rbd-configmap-command
+      runAfter:
+        - command-promote-images
+
+    - name: delete-promote-configmap
+      taskRef:
+        name: delete-configmap
+      runAfter:
+        - execute-promote-command

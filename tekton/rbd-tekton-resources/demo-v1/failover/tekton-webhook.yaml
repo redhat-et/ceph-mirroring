@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: demote-triggertemplate
+spec:
+  params:
+  - name: a 
+    description: demote
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1alpha1
+    kind: PipelineRun
+    metadata:
+      generateName: demote-images-
+      name: demote-pipeline-run-$(uid)
+    spec:
+      serviceAccountName: pipeline
+      pipelineRef:
+        name: rbd-mirror-action
+      params:
+      - name: a
+        value: $(params.a)
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: demote-pipelinebinding
+spec:
+  params:
+    - name: a
+      value: demote
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: webhook
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - binding:
+        name: demote-pipelinebinding
+      template:
+        name: demote-triggertemplate

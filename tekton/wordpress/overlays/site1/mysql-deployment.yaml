@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql-persistent
+    app.kubernetes.io/component: mysql-persistent
+    app.kubernetes.io/instance: mysql-persistent
+    template: mysql-persistent-template
+  name: mysql
+  namespace: wordpress-tekton
+spec:
+  replicas: 1

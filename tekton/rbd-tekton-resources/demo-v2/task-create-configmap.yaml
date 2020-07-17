@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: create-configmap-command
+spec:
+  inputs:
+    params:
+      - name: pool
+        type: string
+        description: name of pool
+      - name: action
+        type: string
+        description: action used to create command script
+      - name: image1
+        type: string
+        description: name of image 1
+      - name: image2
+        type: string
+        description: name of image 2
+  steps:
+    - name: create-configmap
+      image: quay.io/openshift/origin-cli:latest
+      command: ["/bin/sh"]
+      args: [ "-c", "echo '#!/bin/bash\nrbd mirror image $(inputs.params.action) $(inputs.params.image1);rbd mirror image $(inputs.params.action) $(inputs.params.image2)' > /tmp/cephconfigmap ; oc create configmap -n rook-ceph rook-ceph-toolbox-job-script --from-file=/tmp/cephconfigmap" ]

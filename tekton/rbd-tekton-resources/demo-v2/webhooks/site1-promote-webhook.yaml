@@ -1,0 +1,84 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: site1-promote-triggertemplate
+spec:
+  params:
+    - name: p
+      type: string 
+      default: "scottpool2"
+    - name: i1
+      type: string
+      default: "scottpool2/mysql-pv-claim-wordpress-tekton90f1ce51-9082-11ea-a48b-0a580a82024a"
+    - name: i2
+      type: string
+      default: "scottpool2/wp-pv-claim-wordpress-tekton90f1cf28-9082-11ea-a48b-0a580a82024a"
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineResource
+      metadata:
+        name: multisite-$(uid)
+      spec:
+        type: git
+        params:
+        - name: p
+          value: "scottpool2"
+        - name: i1
+          value: "scottpool2/mysql-pv-claim-wordpress-tekton90f1ce51-9082-11ea-a48b-0a580a82024a"
+        - name: i2
+          value: "scottpool2/wp-pv-claim-wordpress-tekton90f1cf28-9082-11ea-a48b-0a580a82024a"
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        name: site1-promote-$(uid)
+        generateName: site1-promote-
+      spec:
+        pipelineRef:
+          name: rbd-promote-images
+        params:
+          - name: pathToYamlFile
+            value: "tekton/wordpress/overlays/site1"
+        serviceAccountName: pipeline
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: site1-promote-pipelinebinding
+spec:
+  params:
+    - name: p
+      value: "scottpool2"
+    - name: i1
+      value: "scottpool2/mysql-pv-claim-wordpress-tekton90f1ce51-9082-11ea-a48b-0a580a82024a"
+    - name: i2
+      value: "scottpool2/wp-pv-claim-wordpress-tekton90f1cf28-9082-11ea-a48b-0a580a82024a"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: promote-webhook
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - bindings:
+      - name: site1-promote-pipelinebinding
+      template:
+        name: site1-promote-triggertemplate
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: promote-webhook
+  name: site1-promote
+spec:
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: el-promote-webhook
+    weight: 100

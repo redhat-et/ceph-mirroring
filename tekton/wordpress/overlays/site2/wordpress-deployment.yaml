@@ -1,0 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wordpress
+    app.kubernetes.io/component: wordpress
+    app.kubernetes.io/instance: wordpress
+  name: wordpress
+  namespace: wordpress-tekton
+spec:
+  replicas: 0

@@ -1,0 +1,70 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: rbd-mirror-action
+spec:
+  inputs:
+    params:
+      - name: pool
+        type: string
+        description: name of pool
+      - name: imagesrch
+        type: string
+        description: search string for image
+      - name: action
+        type: string
+        description: action to run resync|demote|promote
+      - name: SCRIPT
+        description: The OpenShift CLI arguments to run
+        type: string
+        default: "oc $@"
+  steps:
+    - name: get-toolbox
+      image: quay.io/openshift/origin-cli:latest
+      script: "$(inputs.params.SCRIPT)"
+      args:
+        - "get"
+        - "pods"
+        - "-n"
+        - "rook-ceph"
+        - "-o Name"
+        - "|"
+        - "grep rook-ceph-tools > /workspace/tb.txt"
+    - name: build-and-push-1
+      image: ubuntu
+      command:
+      - /bin/bash
+      args:
+      - -c
+      - |
+        set -ex
+        find /workspace
+    - name: build-and-push-1
+      image: ubuntu
+      command:
+      - /bin/bash
+      args:
+      - -c
+      - |
+        set -ex
+        find /workspace | xargs cat
+    - name: exec-toolbox-get-image
+      image: quay.io/openshift/origin-cli:latest
+      script: "$(inputs.params.SCRIPT)"
+      args:
+        - "exec"
+        - "-ti"
+        - $(cat /workspace/tb.txt)
+        - "-n"
+        - "rook-ceph"
+        - "rbd ls $(inputs.params.pool) | grep $(inputs.params.imagesrch) > /workspace/image-$(inputs.params.imagesrch).txt"
+    - name: exec-toolbox-action-image
+      image: quay.io/openshift/origin-cli:latest
+      script: "$(inputs.params.SCRIPT)"
+      args:
+        - "exec"
+        - "-ti"
+        - $(cat /workspace/tb.txt)
+        - "-n"
+        - "rook-ceph"
+        - "rbd mirror image $(inputs.params.action) $(inputs.params.pool)/$(cat /workspace/image-$(inputs.params.imagesrch).txt"

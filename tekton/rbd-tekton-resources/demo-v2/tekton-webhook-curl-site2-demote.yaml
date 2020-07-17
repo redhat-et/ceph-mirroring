@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: demote-images
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: demote-pipeline

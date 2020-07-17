@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: rbd-demote-images
+spec:
+  params:
+    - name: p
+      type: string 
+      default: "scottpool2"
+    - name: i1
+      type: string
+      default: "scottpool2/mysql-pv-claim-wordpress-tekton90f1ce51-9082-11ea-a48b-0a580a82024a"
+    - name: i2
+      type: string
+      default: "scottpool2/wp-pv-claim-wordpress-tekton90f1cf28-9082-11ea-a48b-0a580a82024a"
+  tasks:
+    - name: command-demote-images
+      taskRef:
+        name: create-configmap-command
+      params:
+        - name: pool
+          value: "$(params.p)"
+        - name: action
+          value: "demote"
+        - name: image1
+          value: "$(params.i1)"
+        - name: image2
+          value: "$(params.i2)"
+    - name: execute-demote-command
+      runAfter:
+        - command-demote-images
+      taskRef:
+        name: execute-rbd-configmap-command
+    - name: delete-demote-configmap
+      taskRef:
+        name: delete-configmap
+      runAfter:
+        - execute-demote-command

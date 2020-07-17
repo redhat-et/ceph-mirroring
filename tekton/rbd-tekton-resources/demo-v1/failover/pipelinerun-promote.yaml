@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: promote-images
+spec:
+  serviceAccountName: pipeline
+  params:
+    - name: "a"
+      value: "promote"
+  pipelineRef:
+    name: rbd-mirror-action

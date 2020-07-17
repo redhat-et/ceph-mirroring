@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: failover-demote-images
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: rbd-demote-images

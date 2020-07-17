@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: demote-images
+spec:
+  serviceAccountName: pipeline
+  params:
+    - name: "a"
+      value: "demote"
+  pipelineRef:
+    name: rbd-mirror-action

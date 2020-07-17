@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: delete-configmap
+spec:
+  inputs:
+    params:
+      - name: SCRIPT
+        description: The OpenShift CLI arguments to run
+        type: string
+        default: "oc $@"
+  steps:
+    - name: delete-cm
+      image: quay.io/openshift/origin-cli:latest
+      script: "$(inputs.params.SCRIPT)"
+      args:
+        - "delete"
+        - "cm"
+        - "-n"
+        - "rook-ceph"
+        - "rook-ceph-toolbox-job-script"

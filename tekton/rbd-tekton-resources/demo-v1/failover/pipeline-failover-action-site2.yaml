@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: rbd-mirror-action
+spec:
+  params:
+    - name: p
+      type: string 
+      default: "scottpool"
+    - name: t
+      type: string 
+      default: "rook-ceph-tools-7fdf876d89-zdqq7"
+    - name: a
+      type: string
+      default: "resync"
+    - name: i1
+      type: string
+      default: "mysql-pv-ceph123456789"
+    - name: i2
+      type: string
+      default: "wp-pv-ceph987654321"
+  tasks:
+    - name: execute-sync
+      taskRef:
+        name: rbd-mirror-action
+      params:
+        - name: pool
+          value: "$(params.p)"
+        - name: toolbox
+          value: "$(params.t)"
+        - name: action
+          value: "$(params.a)"
+        - name: image1
+          value: "$(params.i1)"
+        - name: image2
+          value: "$(params.i2)"

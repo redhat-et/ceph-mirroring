@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: promote-pipeline
+spec:
+  params:
+    - name: svc 
+      description: promote webhook service
+      default: site1-promote-rook-ceph.apps.site1.sysdeseng.com
+  tasks:
+  - name: curl-to-sync
+    taskRef:
+      name: curl
+    params:
+      - name: svc
+        value: "$(params.svc)"

@@ -1,0 +1,64 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: execute-rbd-configmap-command
+spec:
+  inputs:
+    params:
+      - name: SCRIPT
+        description: The OpenShift CLI arguments to run
+        type: string
+        default: "oc $@"
+  steps:
+    - name: exec-rbd-command
+      image: quay.io/rcook/storage-rehost:toolbox
+      command: ["/tini"]
+      args: ["-g", "-s", "--", "/script/execute-ceph.sh"]
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: ROOK_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: admin-secret
+      volumeMounts:
+        - mountPath: /etc/ceph
+          name: ceph-config
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
+        - mountPath: /script
+          name: ceph-script
+          readOnly: true
+  sidecars:
+    - name: sidecar-toolbox
+      image: quay.io/rcook/storage-rehost:toolbox
+      command: ["/tini"]
+      args: ["-g", "-s", "--", "/usr/local/bin/toolbox.sh", "--skip-watch"]
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: ROOK_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: admin-secret
+      volumeMounts:
+        - mountPath: /etc/ceph
+          name: ceph-config
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
+  volumes:
+    - name: mon-endpoint-volume
+      configMap:
+        name: rook-ceph-mon-endpoints
+        items:
+        - key: data
+          path: mon-endpoints
+    - name: ceph-config
+      emptyDir: {}
+    - name: ceph-script
+      configMap:
+        name: rook-ceph-toolbox-job-script
+        defaultMode: 493
+        items:
+        - key: cephconfigmap
+          path: execute-ceph.sh

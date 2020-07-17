@@ -1,0 +1,15 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: curl
+spec:
+  inputs:
+    params:
+      - name: svc
+        description: service to webhook
+  steps:
+    - name: curl
+      image: quay.io/openshift/origin-cli:latest
+      command: ["curl"]
+      args:
+        - "$(inputs.params.svc)"
