@@ -1,0 +1,10 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: primary
+  namespace: rook-ceph 
+spec:
+  clusterSelector:
+    matchLabels:
+      name: "east1"
+  clusterReplicas: 1
