@@ -120,6 +120,7 @@ Enable the pools from the Ceph Mgr pod by running entering into the Ceph Mgr Pod
 
 On site1 run the following in the toolbox:
 ```
+oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
