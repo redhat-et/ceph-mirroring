@@ -70,8 +70,8 @@ frontend  main
 #---------------------------------------------------------------------
 backend app
     balance roundrobin
-    option httpchk GET / HTTP/1.1\r\nHost:\ <pacman_lb_hostname>
+    option httpchk GET / HTTP/1.1\r\nHost:\ <wordpress_lb_hostname>
     mode http 
-        server <server1_name> <server1_pacman_route>:<route_port> check
-        server <server2_name> <server2_pacman_route>:<route_port> check
+        server <server1_name> <server1_wordpress_route>:<route_port> check
+        server <server2_name> <server2_wordpress_route>:<route_port> check
 
