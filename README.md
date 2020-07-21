@@ -104,13 +104,18 @@ It will take a few minutes for all of the components to deploy and for the disks
 The toolbox pod is required to interact and configure storage. To deploy the toolbox run the following.
 
 ```
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west1
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west2
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west1 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west2 -n rook-ceph
 ```
 
-### Enable the replica pool
-Enable the pools from the Ceph Mgr pod by running entering into the Ceph Mgr Pods 
+Create the replica pool.
+```
+oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west1 -n rook-ceph
+oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west2 -n rook-ceph
+```
 
+
+### Enable the replica pool
 On site1 run the following in the toolbox:
 ```
 oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
@@ -120,14 +125,63 @@ rbd pool init replicapool
 
 On site2 run the following in the toolbox:
 ```
+oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
 
+### Bootstrap the cluster peers
+A token will be generated on site1 which needs to be applied to site2.
 
+```
+oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+rbd mirror pool peer bootstrap create --site-name site1 replicapool
+eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
+```
 
+```
+oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+vi /tmp/token
+eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 
+rbd mirror pool peer bootstrap import --site-name site2 replicapool /tmp/token
+```
 
+### Validate the pool status
+
+```
+oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+sh-4.4$ rbd mirror pool info replicapool --all
+Mode: image
+Site Name: site1
+
+Peer Sites: 
+
+UUID: 911e08fa-5d50-45db-b35b-7737781029b7
+Name: site2
+Mirror UUID: 6d64ccb7-27f2-466c-8a86-d7926cfe906b
+Direction: rx-tx
+Client: client.rbd-mirror-peer
+Mon Host: 10.2.160.152:6789,10.2.151.100:6789,10.2.208.221:6789
+Key: AQCjDhdflMlIDhAA+qI9dEzthQAz9q+RKuh6Cw==
+```
+
+```
+oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+sh-4.4$ rbd mirror pool info replicapool --all
+Mode: image
+Site Name: site2
+
+Peer Sites: 
+
+UUID: e45f5bfd-8e01-4f43-a16b-2ee29ff0ed47
+Name: site1
+Mirror UUID: b86d777b-30f9-43f2-9d46-b2d922c10870
+Direction: rx-tx
+Client: client.rbd-mirror-peer
+Mon Host: 10.0.237.248:6789,10.0.162.102:6789,10.0.132.45:6789
+Key: AQCADRdfsFLwFxAAoGkeivDAujZNKo8pVRnBAw==
+```
 
 # Application deployment and management
 Depending on what tooling is available in your clusters the option exists to use the following tools. Follow the directions in the different subdirectories to deploy the required compontents to be used for applciation management.
