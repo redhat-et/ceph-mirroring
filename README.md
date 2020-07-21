@@ -57,13 +57,6 @@ Ensure the following ports are opened between both sites.
 * 3300
 * 6800-7300
 
-On both sites create the following objects.
-```
-oc create -f rook-ceph-mirroring/common.yaml
-oc create -f rook-ceph-mirroring/operator-openshift.yaml
-oc create -f rook-ceph-mirroring/cluster-1.3.6-pvc.yaml
-```
-
 ## Establishing mirroring
 The following files must be deployed on both clusters to deploy the ceph mirroring objects. A disk is requested using the storageclass. If the *storageclass* is not gp2 modify the file *rook-ceph-mirroring/cluster-1.3.6-pvc.yaml* replacing *gp2* with your *storageclass*. This may differ between clusters as well especially in a Hybrid cloud. One site may have a *storageclass* named *standard* while another may have a storage class named *thin*. Verify the name of the *storageclass* for your cluster before deploying.
 
