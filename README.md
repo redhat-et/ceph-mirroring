@@ -140,7 +140,10 @@ rbd pool init replicapool
 Depending on what tooling is available in your clusters the option exists to use the following tools. Follow the directions in the different subdirectories to deploy the required compontents to be used for applciation management.
 
 [Advanced Cluster Management For Kubernetes Steps](./acm-application-configuration)
+
 [ArgoCD](./argo-applications)
+
 [Tekton](./tekton)
+
 [Manual](./application)
 
