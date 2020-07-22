@@ -61,11 +61,11 @@ Ensure the following ports are opened between both sites.
 The following files must be deployed on both clusters to deploy the ceph mirroring objects. A disk is requested using the storageclass. If the *storageclass* is not gp2 modify the file *rook-ceph-mirroring/cluster-1.3.6-pvc.yaml* replacing *gp2* with your *storageclass*. This may differ between clusters as well especially in a Hybrid cloud. One site may have a *storageclass* named *standard* while another may have a storage class named *thin*. Verify the name of the *storageclass* for your cluster before deploying.
 
 ```
-oc get sc --context west1
+oc get sc --context site1
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   true                   4h35m
 
-oc get sc --context west2
+oc get sc --context site2
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   true                   4h35m
 ```
@@ -83,18 +83,18 @@ vi rook-ceph-mirroring/cluster-1.3.6-pvc.yaml
 ### Creating the ceph objects
 Deploy the following yamls on both clusters.
 ```
-oc create -f ceph-deployment/common.yaml --context west1
-oc create -f ceph-deployment/common.yaml --context west2
+oc create -f ceph-deployment/common.yaml --context site1
+oc create -f ceph-deployment/common.yaml --context site2
 ```
 
 ```
-oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west1
-oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west2
+oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context site1
+oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context site2
 ```
 
 ```
-oc create -f ceph-deployment/operator-openshift.yaml --context west1
-oc create -f ceph-deployment/operator-openshift.yaml --context west2
+oc create -f ceph-deployment/operator-openshift.yaml --context site1
+oc create -f ceph-deployment/operator-openshift.yaml --context site2
 ```
 
 It will take a few minutes for all of the components to deploy and for the disks to be formatted.
@@ -104,28 +104,28 @@ It will take a few minutes for all of the components to deploy and for the disks
 The toolbox pod is required to interact and configure storage. To deploy the toolbox run the following.
 
 ```
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west1 -n rook-ceph
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west2 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context site1 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context site2 -n rook-ceph
 ```
 
 Create the replica pool.
 ```
-oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west1 -n rook-ceph
-oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west2 -n rook-ceph
+oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context site1 -n rook-ceph
+oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context site2 -n rook-ceph
 ```
 
 
 ### Enable the replica pool
 On site1 run the following in the toolbox:
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site1 `oc get pods -n rook-ceph --context site1 | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
 
 On site2 run the following in the toolbox:
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site2 `oc get pods -n rook-ceph --context site2 | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
@@ -134,13 +134,13 @@ rbd pool init replicapool
 A token will be generated on site1 which needs to be applied to site2.
 
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site1 `oc get pods -n rook-ceph --context site1 | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool peer bootstrap create --site-name site1 replicapool
 eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 ```
 
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site2 `oc get pods -n rook-ceph --context site2 | grep rook-ceph-tools | awk '{print $1}'`
 vi /tmp/token
 eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 
@@ -150,7 +150,7 @@ rbd mirror pool peer bootstrap import --site-name site2 replicapool /tmp/token
 ### Validate the pool status
 
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site1 `oc get pods -n rook-ceph --context site1 | grep rook-ceph-tools | awk '{print $1}'`
 sh-4.4$ rbd mirror pool info replicapool --all
 Mode: image
 Site Name: site1
@@ -167,7 +167,7 @@ Key: AQCjDhdflMlIDhAA+qI9dEzthQAz9q+RKuh6Cw==
 ```
 
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context site2 `oc get pods -n rook-ceph --context site2 | grep rook-ceph-tools | awk '{print $1}'`
 sh-4.4$ rbd mirror pool info replicapool --all
 Mode: image
 Site Name: site2
