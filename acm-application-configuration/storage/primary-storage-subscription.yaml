@@ -9,7 +9,7 @@ metadata:
     apps.open-cluster-management.io/github-path: rbd-jobs/both
     apps.open-cluster-management.io/github-branch: master
 spec:
-  channel: rook-ceph/wordpress 
+  channel: rook-ceph/wordpress-storage
   placement:
     placementRef:
       kind: PlacementRule
