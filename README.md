@@ -183,7 +183,7 @@ Mon Host: 10.0.237.248:6789,10.0.162.102:6789,10.0.132.45:6789
 Key: AQCADRdfsFLwFxAAoGkeivDAujZNKo8pVRnBAw==
 ```
 
-### Creating the security group
+### Creating the StorageClass
 Now that the pools have been established the storage class must be created to be used by applications.
 
 ```
