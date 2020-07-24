@@ -44,7 +44,7 @@ spec:
 
           ## Read all images into an array for our pool
           ## supplying the Pool only
-          pool="scottpool2"
+          pool="replicapool"
           arr=()
           while IFS= read -r line; do
             arr+=( "$pool/$line" )
