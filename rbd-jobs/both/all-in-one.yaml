@@ -21,8 +21,8 @@ spec:
               name: rook-ceph-mon
               key: admin-secret
         volumeMounts:
-        - mountPath: /etc/ceph
-          name: ceph-config
+        - name: ceph-config
+          mountPath: /etc/ceph
         - name: mon-endpoint-volume
           mountPath: /etc/rook
       containers:
