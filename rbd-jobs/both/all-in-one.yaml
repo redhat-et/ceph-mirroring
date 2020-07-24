@@ -1,30 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: total-job-7
+  name: total-job-5
   namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
 spec:
   template:
     spec:
-      initContainers:
-      - name: config-init-total
-        image: quay.io/rcook/storage-rehost:toolbox
-        command: ["/tini"]
-        args: ["-g", "-s", "--", "/usr/local/bin/toolbox.sh", "--skip-watch"]
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: ROOK_ADMIN_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: rook-ceph-mon
-              key: admin-secret
-        volumeMounts:
-        - name: ceph-config
-          mountPath: /etc/ceph
-        - name: mon-endpoint-volume
-          mountPath: /etc/rook
       containers:
       - name: script-resync
         image: quay.io/rcook/storage-rehost:toolbox
@@ -36,6 +19,11 @@ spec:
         - "bash"
         - "-c"
         - |
+          # Image List in Array - Edit this for your Pool and Images
+          # declare -a arr=("scottpool4/mysql-pv-claim-wordpresse3330f81-bb9b-11ea-bd87-0a580a83002e" 
+          #                "scottpool4/wp-pv-claim-wordpresse335727c-bb9b-11ea-bd87-0a580a83002e"
+          #               )
+
           # Read all images into an array for our pool
           # supplying the Pool only
           pool="replicapool"
