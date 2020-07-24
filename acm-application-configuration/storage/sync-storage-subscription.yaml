@@ -4,7 +4,7 @@ metadata:
   name: sync 
   namespace: rook-ceph
   labels:
-    name: west2 
+    environment: storage
   annotations:
     apps.open-cluster-management.io/github-path: rbd-jobs/standby
     apps.open-cluster-management.io/github-branch: master
