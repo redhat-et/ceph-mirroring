@@ -1,7 +1,7 @@
 apiVersion: apps.open-cluster-management.io/v1
 kind: Channel
 metadata:
-  name: wordpress-storage
+  name: wordpress-storage-repo
   namespace: rook-ceph
 spec:
   type: GitHub

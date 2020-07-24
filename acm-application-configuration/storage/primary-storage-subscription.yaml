@@ -4,12 +4,12 @@ metadata:
   name: primary 
   namespace: rook-ceph
   labels:
-    environment: storage
+    name: west2
   annotations:
     apps.open-cluster-management.io/github-path: rbd-jobs/both
     apps.open-cluster-management.io/github-branch: master
 spec:
-  channel: rook-ceph/wordpress-storage
+  channel: rook-ceph/wordpress-storage-repo
   placement:
     placementRef:
       kind: PlacementRule
