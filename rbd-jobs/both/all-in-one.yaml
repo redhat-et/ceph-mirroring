@@ -1,90 +1,113 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
+  name: total-job-7
+  namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
-  name: total-job-8
 spec:
   template:
-    metadata:
     spec:
-      containers:
-      - command:
-        - bash
-        - -c
-        - "# Image List in Array - Edit this for your Pool and Images\n# declare -a
-          arr=(\"scottpool4/mysql-pv-claim-wordpresse3330f81-bb9b-11ea-bd87-0a580a83002e\"
-          \n#                \"scottpool4/wp-pv-claim-wordpresse335727c-bb9b-11ea-bd87-0a580a83002e\"\n#
-          \              )\n\n# Read all images into an array for our pool\n# supplying
-          the Pool only\npool=\"replicapool\"\narr=()\nwhile IFS= read -r line; do\n
-          \ arr+=( \"$pool/$line\" )\ndone < <( rbd ls $pool )\n\n# Wait for images
-          to come back clean\necho \"\"\necho \" --- VERIFY IMAGES ---\"\nfor i in
-          \"${arr[@]}\"\ndo\n  until rbd mirror image status $i | head -2 | tail -1
-          | grep -q \"global_id:\";\n  do\n    sleep 1;\n  done\ndone\necho \" ---
-          VERIFIED ---\"\necho \"\"\n\n# Check demote status\necho \" --- DEMOTE ---\"\nj=0\ndemoted=()\nfor
-          i in \"${arr[@]}\"\ndo\n  value=$( rbd mirror image status $i | head -4
-          | tail -1 )\n  if [[ $value == *\"image is primary\"* ]]; then\n    echo
-          \"is primary - do the demote of $i\"\n    rbd mirror image demote $i\n    demoted[$j]=\"Y\"\n
-          \ else\n    echo \"not primary - do not demote $i\"\n    demoted[$j]=\"N\"\n
-          \ fi\n  ((j++))\ndone\necho \" --- DONE DEMOTE ---\"\necho \"\"\n\n# Check
-          promote status\necho \" --- PROMOTE ---\"\nk=0\nfor i in \"${arr[@]}\"\ndo\n
-          \ echo \"Was image $i demoted? -${demoted[$k]}-\"\n\n  if [[ ${demoted[$k]}
-          == \"N\" ]]; then\n    valuep=$( rbd mirror image status $i | head -4 |
-          tail -1 )\n    if [[ $valuep == *\"image is primary\"* ]]; then\n      echo
-          \"Image is already primary - do not promote $i\"\n    else\n      echo \"Promoting
-          image $i\"\n      until rbd mirror image promote $i | head -1 | tail -1
-          | grep -q \"Image\";\n      do\n        echo \"... waiting to promote\"\n
-          \       sleep 3;\n      done\n    fi\n  else\n    echo \"Image was just
-          demoted - do not promote\"\n  fi\n  ((k++))\ndone\n"
-        image: quay.io/rcook/storage-rehost:toolbox
-        imagePullPolicy: IfNotPresent
-        name: script-resync
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /etc/ceph
-          name: ceph-config
-          readOnly: true
-      dnsPolicy: ClusterFirst
       initContainers:
-      - args:
-        - -g
-        - -s
-        - --
-        - /usr/local/bin/toolbox.sh
-        - --skip-watch
-        command:
-        - /tini
+      - name: config-init-total
+        image: quay.io/rcook/storage-rehost:toolbox
+        command: ["/tini"]
+        args: ["-g", "-s", "--", "/usr/local/bin/toolbox.sh", "--skip-watch"]
+        imagePullPolicy: IfNotPresent
         env:
         - name: ROOK_ADMIN_SECRET
           valueFrom:
             secretKeyRef:
-              key: admin-secret
               name: rook-ceph-mon
+              key: admin-secret
+        volumeMounts:
+        - name: ceph-config
+          mountPath: /etc/ceph
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
+      containers:
+      - name: script-resync
         image: quay.io/rcook/storage-rehost:toolbox
-        imagePullPolicy: IfNotPresent
-        name: config-init-total
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/ceph
           name: ceph-config
-        - mountPath: /etc/rook
-          name: mon-endpoint-volume
-      restartPolicy: Never
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
+          readOnly: true
+        command:
+        - "bash"
+        - "-c"
+        - |
+          # Read all images into an array for our pool
+          # supplying the Pool only
+          pool="replicapool"
+          arr=()
+          while IFS= read -r line; do
+            arr+=( "$pool/$line" )
+          done < <( rbd ls $pool )
+
+          # Wait for images to come back clean
+          echo ""
+          echo " --- VERIFY IMAGES ---"
+          for i in "${arr[@]}"
+          do
+            until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
+            do
+              sleep 1;
+            done
+          done
+          echo " --- VERIFIED ---"
+          echo ""
+
+          # Check demote status
+          echo " --- DEMOTE ---"
+          j=0
+          demoted=()
+          for i in "${arr[@]}"
+          do
+            value=$( rbd mirror image status $i | head -4 | tail -1 )
+            if [[ $value == *"image is primary"* ]]; then
+              echo "is primary - do the demote of $i"
+              rbd mirror image demote $i
+              demoted[$j]="Y"
+            else
+              echo "not primary - do not demote $i"
+              demoted[$j]="N"
+            fi
+            ((j++))
+          done
+          echo " --- DONE DEMOTE ---"
+          echo ""
+
+          # Check promote status
+          echo " --- PROMOTE ---"
+          k=0
+          for i in "${arr[@]}"
+          do
+            echo "Was image $i demoted? -${demoted[$k]}-"
+
+            if [[ ${demoted[$k]} == "N" ]]; then
+              valuep=$( rbd mirror image status $i | head -4 | tail -1 )
+              if [[ $valuep == *"image is primary"* ]]; then
+                echo "Image is already primary - do not promote $i"
+              else
+                echo "Promoting image $i"
+                until rbd mirror image promote $i | head -1 | tail -1 | grep -q "Image";
+                do
+                  echo "... waiting to promote"
+                  sleep 3;
+                done
+              fi
+            else
+              echo "Image was just demoted - do not promote"
+            fi
+            ((k++))
+          done
       volumes:
-      - configMap:
-          defaultMode: 420
+      - name: mon-endpoint-volume
+        configMap:
+          name: rook-ceph-mon-endpoints
           items:
           - key: data
             path: mon-endpoints
-          name: rook-ceph-mon-endpoints
-        name: mon-endpoint-volume
-      - emptyDir: {}
-        name: ceph-config
-status: {}
+      - name: ceph-config
+        emptyDir: {}
+      restartPolicy: Never
