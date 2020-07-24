@@ -62,7 +62,7 @@ spec:
               echo "... ... is primary - do not resync $i"
               echo "   ----"
             else
-              echo "... ... not primary - resyncing image $i\n"
+              echo "... ... not primary - resyncing image $i"
               rbd mirror image resync "$i"
               echo "   ----"
             fi
@@ -72,13 +72,15 @@ spec:
             echo "...WAIT FOR CLEAN IMAGE"
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
             do
+              echo " ... ... checking"
               sleep 1;
             done
             echo "   ----"
             echo ""
 
             ((j++))
-          done            
+          done
+          echo "Completed!!"
       volumes:
       - name: mon-endpoint-volume
         configMap:
