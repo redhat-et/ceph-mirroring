@@ -1,7 +1,7 @@
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
-  name: blog-east1 
+  name: blog-west2
   namespace: wordpress
 spec:
   clusterConditions:
@@ -9,5 +9,5 @@ spec:
   clusterSelector:
     matchExpressions: []
     matchLabels:
-      name: "east1"
+      name: "west2"
   clusterReplicas: 1

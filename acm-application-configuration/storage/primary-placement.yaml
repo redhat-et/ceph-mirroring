@@ -6,5 +6,5 @@ metadata:
 spec:
   clusterSelector:
     matchLabels:
-      name: "east1"
+      name: "west1"
   clusterReplicas: 1

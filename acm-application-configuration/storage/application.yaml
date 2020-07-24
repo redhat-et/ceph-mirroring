@@ -13,5 +13,5 @@ spec:
          - key: name
            operator: In
            values:
-              - east1
-              - east2
+              - west1
+              - west2

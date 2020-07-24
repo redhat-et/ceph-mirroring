@@ -1,16 +1,16 @@
 apiVersion: apps.open-cluster-management.io/v1
 kind: Subscription
 metadata:
-  name: east1-application-subscription
+  name: west1-application-subscription
   namespace: wordpress
   labels:
-    name: east1
+    name: west1
   annotations:
-    apps.open-cluster-management.io/github-path: application/wordpress/overlays/east1
+    apps.open-cluster-management.io/github-path: application/wordpress/overlays/west1
     apps.open-cluster-management.io/github-branch: master
 spec:
   channel: wordpress/acm-storage
   placement:
     placementRef:
       kind: PlacementRule
-      name: blog-east1
+      name: blog-west1

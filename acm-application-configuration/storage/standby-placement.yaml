@@ -9,5 +9,5 @@ spec:
   clusterSelector:
     matchExpressions: []
     matchLabels:
-      name: "east2"
+      name: "west2"
   clusterReplicas: 1
