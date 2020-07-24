@@ -183,6 +183,14 @@ Mon Host: 10.0.237.248:6789,10.0.162.102:6789,10.0.132.45:6789
 Key: AQCADRdfsFLwFxAAoGkeivDAujZNKo8pVRnBAw==
 ```
 
+### Creating the security group
+Now that the pools have been established the storage class must be created to be used by applications.
+
+```
+oc create -f rook-ceph-mirroring/post-deploy/storageclass.yaml --context site1
+oc create -f rook-ceph-mirroring/post-deploy/storageclass.yaml --context site2
+```
+
 # Application deployment and management
 Depending on what tooling is available in your clusters the option exists to use the following tools. Follow the directions in the different subdirectories to deploy the required compontents to be used for applciation management.
 
