@@ -5,4 +5,4 @@ metadata:
   namespace: wordpress
 spec:
   type: GitHub
-  pathname: https://github.com/cooktheryan/acm-storage.git
+  pathname: https://github.com/redhat-et/ceph-mirroring

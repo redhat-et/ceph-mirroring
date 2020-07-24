@@ -1,10 +1,10 @@
 apiVersion: apps.open-cluster-management.io/v1
 kind: Subscription
 metadata:
-  name: primary
+  name: primary 
   namespace: rook-ceph
   labels:
-    name: west1
+    name: west2 
   annotations:
     apps.open-cluster-management.io/github-path: rbd-jobs/both
     apps.open-cluster-management.io/github-branch: master
@@ -13,4 +13,4 @@ spec:
   placement:
     placementRef:
       kind: PlacementRule
-      name: primary
+      name: primary 

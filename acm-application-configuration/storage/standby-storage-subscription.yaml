@@ -4,7 +4,7 @@ metadata:
   name: standby-storage
   namespace: rook-ceph
   labels:
-    name: west2
+    name: west1
   annotations:
     apps.open-cluster-management.io/github-path: rbd-jobs/both
     apps.open-cluster-management.io/github-branch: master
