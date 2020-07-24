@@ -10,6 +10,7 @@ metadata:
     apps.open-cluster-management.io/github-branch: master
 spec:
   channel: rook-ceph/wordpress-storage-repo
+  name: primary
   placement:
     placementRef:
       kind: PlacementRule
