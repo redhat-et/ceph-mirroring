@@ -184,6 +184,36 @@ Mon Host: 10.0.237.248:6789,10.0.162.102:6789,10.0.132.45:6789
 Key: AQCADRdfsFLwFxAAoGkeivDAujZNKo8pVRnBAw==
 ```
 
+### Modifying the provisioner
+An extra flag is required to ensure that all of the metadata is provided when creating PVC objects to be mirrored. Add *- --extra-create-metadata=true* to the args section of the deploy. 
+```
+oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west1
+..redacted..
+      - args:
+        - --csi-address=$(ADDRESS)
+        - --v=0
+        - --timeout=150s
+        - --retry-interval-start=500ms
+        - --enable-leader-election=true
+        - --leader-election-type=leases
+        - --leader-election-namespace=rook-ceph
+        - --extra-create-metadata=true
+```
+
+```
+oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west2
+..redacted..
+      - args:
+        - --csi-address=$(ADDRESS)
+        - --v=0
+        - --timeout=150s
+        - --retry-interval-start=500ms
+        - --enable-leader-election=true
+        - --leader-election-type=leases
+        - --leader-election-namespace=rook-ceph
+        - --extra-create-metadata=true
+```
+
 ### Creating the StorageClass
 Now that the pools have been established the storage class must be created to be used by applications.
 
