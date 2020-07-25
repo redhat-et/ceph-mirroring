@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: resync-job-6
+  name: resync-job-8
   namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
@@ -37,25 +37,15 @@ spec:
         - "bash"
         - "-c"
         - |
-          # Image List in Array - Edit this for your Pool and Images
-          #declare -a arr=("scottpool4/mysql-pv-claim-wordpresse3330f81-bb9b-11ea-bd87-0a580a83002e" 
-          #                "scottpool4/wp-pv-claim-wordpresse335727c-bb9b-11ea-bd87-0a580a83002e"
-          #               )
-
-          ## Read all images into an array for our pool
-          ## supplying the Pool only
           pool="replicapool"
           arr=()
           while IFS= read -r line; do
             arr+=( "$pool/$line" )
           done < <( rbd ls $pool )
-          
           j=0
           for i in "${arr[@]}"
           do
             echo "Analyzing Image $i"
-
-            # Resync
             value=$( rbd mirror image status "$i" | head -4 | tail -1 )
             echo "...RESYNC EVAL"
             if [[ $value == *"image is primary"* ]]; then
@@ -67,8 +57,6 @@ spec:
               echo "   ----"
             fi
             echo ""
-
-            ## Wait for images to come back clean and make sure they exist
             echo "...WAIT FOR CLEAN IMAGE"
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
             do
@@ -77,7 +65,6 @@ spec:
             done
             echo "   ----"
             echo ""
-
             ((j++))
           done
           echo "Completed!!"
