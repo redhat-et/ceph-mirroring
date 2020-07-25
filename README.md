@@ -139,6 +139,7 @@ rbd mirror pool peer bootstrap create --site-name west1 replicapool
 eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 ```
 
+Using the value of the generated token place the output into the file */tmp/token* on west2 and then import the file.
 ```
 oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
 vi /tmp/token
