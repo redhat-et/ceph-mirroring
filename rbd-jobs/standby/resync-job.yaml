@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: resync-job-9
+  name: resync-job-10
   namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
@@ -47,6 +47,7 @@ spec:
           do
             value=$( rbd mirror image status "$i" | head -4 | tail -1 )
             if [[ $value == *"image is primary"* ]]; then
+              echo 'image is primary skipping sync'
             else
               rbd mirror image resync "$i"
             fi
