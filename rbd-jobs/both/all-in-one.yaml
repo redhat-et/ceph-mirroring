@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: total-job-5
+  name: total-job-6
   namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
@@ -19,22 +19,11 @@ spec:
         - "bash"
         - "-c"
         - |
-          # Image List in Array - Edit this for your Pool and Images
-          # declare -a arr=("scottpool4/mysql-pv-claim-wordpresse3330f81-bb9b-11ea-bd87-0a580a83002e" 
-          #                "scottpool4/wp-pv-claim-wordpresse335727c-bb9b-11ea-bd87-0a580a83002e"
-          #               )
-
-          # Read all images into an array for our pool
-          # supplying the Pool only
           pool="replicapool"
           arr=()
           while IFS= read -r line; do
             arr+=( "$pool/$line" )
           done < <( rbd ls $pool )
-
-          # Wait for images to come back clean
-          echo ""
-          echo " --- VERIFY IMAGES ---"
           for i in "${arr[@]}"
           do
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
@@ -42,36 +31,22 @@ spec:
               sleep 1;
             done
           done
-          echo " --- VERIFIED ---"
-          echo ""
-
-          # Check demote status
-          echo " --- DEMOTE ---"
           j=0
           demoted=()
           for i in "${arr[@]}"
           do
             value=$( rbd mirror image status $i | head -4 | tail -1 )
             if [[ $value == *"image is primary"* ]]; then
-              echo "is primary - do the demote of $i"
               rbd mirror image demote $i
               demoted[$j]="Y"
             else
-              echo "not primary - do not demote $i"
               demoted[$j]="N"
             fi
             ((j++))
           done
-          echo " --- DONE DEMOTE ---"
-          echo ""
-
-          # Check promote status
-          echo " --- PROMOTE ---"
           k=0
           for i in "${arr[@]}"
           do
-            echo "Was image $i demoted? -${demoted[$k]}-"
-
             if [[ ${demoted[$k]} == "N" ]]; then
               valuep=$( rbd mirror image status $i | head -4 | tail -1 )
               if [[ $valuep == *"image is primary"* ]]; then
