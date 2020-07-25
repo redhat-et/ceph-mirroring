@@ -45,29 +45,17 @@ spec:
           j=0
           for i in "${arr[@]}"
           do
-            echo "Analyzing Image $i"
             value=$( rbd mirror image status "$i" | head -4 | tail -1 )
-            echo "...RESYNC EVAL"
             if [[ $value == *"image is primary"* ]]; then
-              echo "... ... is primary - do not resync $i"
-              echo "   ----"
             else
-              echo "... ... not primary - resyncing image $i"
               rbd mirror image resync "$i"
-              echo "   ----"
             fi
-            echo ""
-            echo "...WAIT FOR CLEAN IMAGE"
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
             do
-              echo " ... ... checking"
               sleep 1;
             done
-            echo "   ----"
-            echo ""
             ((j++))
           done
-          echo "Completed!!"
       volumes:
       - name: mon-endpoint-volume
         configMap:
