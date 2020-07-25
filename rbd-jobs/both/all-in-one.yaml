@@ -1,13 +1,30 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: total-job-6
+  name: total-job-9
   namespace: rook-ceph
   labels:
     app: ceph-toolbox-job
 spec:
   template:
     spec:
+      initContainers:
+      - name: config-init-total
+        image: quay.io/rcook/storage-rehost:toolbox
+        command: ["/tini"]
+        args: ["-g", "-s", "--", "/usr/local/bin/toolbox.sh", "--skip-watch"]
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ROOK_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: admin-secret
+        volumeMounts:
+        - mountPath: /etc/ceph
+          name: ceph-config
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
       containers:
       - name: script-resync
         image: quay.io/rcook/storage-rehost:toolbox
