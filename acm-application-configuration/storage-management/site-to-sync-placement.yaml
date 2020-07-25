@@ -1,0 +1,13 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: site-to-sync
+  namespace: rook-ceph
+spec:
+  clusterConditions:
+   - type: OK
+  clusterSelector:
+    matchExpressions: []
+    matchLabels:
+      name: "west1"
+  clusterReplicas: 1

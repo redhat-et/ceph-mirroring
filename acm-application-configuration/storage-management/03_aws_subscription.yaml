@@ -1,0 +1,16 @@
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  name: storage-management-subscription
+  namespace: rook-ceph 
+  labels:
+    cloud: Amazon
+  annotations:
+    apps.open-cluster-management.io/github-path: rbd-jobs/both
+    apps.open-cluster-management.io/github-branch: master
+spec:
+  channel: rook-ceph/storage-management
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: storage-clusters
