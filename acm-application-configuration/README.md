@@ -13,3 +13,5 @@ oc create -f application.yaml
 oc create -f west1-subscription.yaml
 oc create -f blog-west1.yaml
 ```
+
+##
