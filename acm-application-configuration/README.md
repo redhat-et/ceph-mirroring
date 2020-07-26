@@ -14,4 +14,5 @@ oc create -f west1-subscription.yaml
 oc create -f blog-west1.yaml
 ```
 
-##
+## Install wordpress
+Using the route defined within application/base/

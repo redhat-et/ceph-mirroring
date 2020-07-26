@@ -25,7 +25,7 @@ $ rbd mirror snapshot schedule add --pool replicapool --image mysql-pv-claim-wor
 $ rbd mirror snapshot schedule add --pool replicapool --image  wp-pv-claim-wordpress3ad28968-cece-11ea-8e1a-0a580a81021a1m 1m
 ```
 
-### Validating the schedule
+## Validating the schedule
 ```
 $ oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
 $ rbd mirror snapshot schedule ls --pool replicapool --recursive
