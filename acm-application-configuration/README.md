@@ -1,5 +1,5 @@
 # Advanced Cluster Management for Kubernetes
-We will create various ACM applications which will be used to manage all of our storage and application objects.
+We will create various ACM applications which will be used to manage all of our storage and application objects. This document assumes that ACM has been installed and two clusters have been loaded into ACM as spokes. For directions check out https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/1.0/html/about_red_hat_advanced_cluster_management_for_kubernetes/welcome-to-red-hat-advanced-cluster-management-for-kubernetes#introduction
 
 ## Deploying to West1
 First we need to deploy the application to our first location.
