@@ -58,7 +58,7 @@ Ensure the following ports are opened between both sites.
 * 6800-7300
 
 ## Establishing mirroring
-The following files must be deployed on both clusters to deploy the ceph mirroring objects. A disk is requested using the storageclass. If the *storageclass* is not gp2 modify the file *rook-ceph-mirroring/cluster-1.3.6-pvc.yaml* replacing *gp2* with your *storageclass*. This may differ between clusters as well especially in a Hybrid cloud. One site may have a *storageclass* named *standard* while another may have a storage class named *thin*. Verify the name of the *storageclass* for your cluster before deploying.
+The following files must be deployed on both clusters to deploy the ceph mirroring objects. A disk is requested using the storageclass. If the *storageclass* is not gp2 modify the file *ceph-deployment/cluster-1.3.6-pvc.yaml* replacing *gp2* with your *storageclass*. This may differ between clusters as well especially in a Hybrid cloud. One site may have a *storageclass* named *standard* while another may have a storage class named *thin*. Verify the name of the *storageclass* for your cluster before deploying.
 
 ```
 oc get sc --context west1
@@ -73,7 +73,7 @@ gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   t
 (Optional) If required make the following change.
 
 ```
-vi rook-ceph-mirroring/cluster-1.3.6-pvc.yaml
+vi ceph-deployment/cluster-1.3.6-pvc.yaml
 
     volumeClaimTemplate:
       spec:
@@ -110,8 +110,8 @@ oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west2 -n rook-ce
 
 Create the replica pool.
 ```
-oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west1 -n rook-ceph
-oc create -f rook-ceph-mirroring/post-deploy/pool.yaml --context west2 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/pool.yaml --context west1 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/pool.yaml --context west2 -n rook-ceph
 ```
 
 
@@ -218,8 +218,8 @@ oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west2
 Now that the pools have been established the storage class must be created to be used by applications.
 
 ```
-oc create -f rook-ceph-mirroring/post-deploy/storageclass.yaml --context west1
-oc create -f rook-ceph-mirroring/post-deploy/storageclass.yaml --context west2
+oc create -f ceph-deployment/post-deploy/storageclass.yaml --context west1
+oc create -f ceph-deployment/post-deploy/storageclass.yaml --context west2
 ```
 
 # Application deployment and management
