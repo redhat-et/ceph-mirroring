@@ -63,7 +63,7 @@ The following files must be deployed on both clusters to deploy the ceph mirrori
 ```
 oc get sc --context psi
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   true                   4h35m
+standard (default)   kubernetes.io/cinder   Delete          WaitForFirstConsumer   true                   4h35m
 
 oc get sc --context aws
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
