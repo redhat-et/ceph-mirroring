@@ -46,6 +46,8 @@ spec:
     ssl: true
   crashCollector:
     disable: true
+  # comment out this network section
+  # when using Submariner
   network:
     # enable host networking
     provider: host
