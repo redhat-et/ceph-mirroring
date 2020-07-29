@@ -48,9 +48,9 @@ spec:
     disable: true
   # comment out this network section
   # when using Submariner
-  network:
-    # enable host networking
-    provider: host
+  # network:
+  # enable host networking
+  #  provider: host
   rbdMirroring:
     # The number of daemons that will perform the rbd mirroring.
     # rbd mirroring must be configured with "rbd mirror" from the rook toolbox.

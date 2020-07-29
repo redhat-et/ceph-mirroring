@@ -1,14 +1,14 @@
 # Before starting
-Fork this repository. Ensure two clusters have already been deployed. The kubeconfigs must be modified to allow them to be identified with unique contexts. By default, clusters are deployed with the context name of admin. We will modify that to have the example name of *west1* and *west2*. Once that has been done we will export the configuration and validate we have two contexts.
+Fork this repository. Ensure two clusters have already been deployed. The kubeconfigs must be modified to allow them to be identified with unique contexts. By default, clusters are deployed with the context name of admin. We will modify that to have the example name of *psi* and *aws*. Once that has been done we will export the configuration and validate we have two contexts.
 
 ```
-sed -i 's/admin/west1/g' west1/auth/kubeconfig
-sed -i 's/admin/west2/g' west2/auth/kubeconfig
-export KUBECONFIG=/home/user/west1/auth/kubeconfig:/home/user/west2/auth/kubeconfig
+sed -i 's/admin/psi/g' ~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig
+sed -i 's/admin/aws/g' ~/git/sleepy-admin/submariner/submariner-aws/auth/kubeconfig
+export KUBECONFIG=~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig:~/git/sleepy-admin/submariner/submariner-aws/auth/kubeconfig
 oc config get-contexts
 CURRENT   NAME    CLUSTER   AUTHINFO   NAMESPACE
-*         west1   west1     west1      
-          west2   west2     west2      
+*         psi   psi     psi      
+          aws   aws     aws      
 ```
 
 # Application Endpoint
@@ -61,11 +61,11 @@ Ensure the following ports are opened between both sites.
 The following files must be deployed on both clusters to deploy the ceph mirroring objects. A disk is requested using the storageclass. If the *storageclass* is not gp2 modify the file *ceph-deployment/cluster-1.3.6-pvc.yaml* replacing *gp2* with your *storageclass*. This may differ between clusters as well especially in a Hybrid cloud. One site may have a *storageclass* named *standard* while another may have a storage class named *thin*. Verify the name of the *storageclass* for your cluster before deploying.
 
 ```
-oc get sc --context west1
+oc get sc --context psi
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   true                   4h35m
 
-oc get sc --context west2
+oc get sc --context aws
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   true                   4h35m
 ```
@@ -83,18 +83,18 @@ vi ceph-deployment/cluster-1.3.6-pvc.yaml
 ### Creating the ceph objects
 Deploy the following yamls on both clusters.
 ```
-oc create -f ceph-deployment/common.yaml --context west1
-oc create -f ceph-deployment/common.yaml --context west2
+oc create -f ceph-deployment/common.yaml --context psi
+oc create -f ceph-deployment/common.yaml --context aws
 ```
 
 ```
-oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west1
-oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west2
+oc create -f ceph-deployment/psi-cluster-1.3.6-pvc.yaml --context psi
+oc create -f ceph-deployment/aws-cluster-1.3.6-pvc.yaml --context aws
 ```
 
 ```
-oc create -f ceph-deployment/operator-openshift.yaml --context west1
-oc create -f ceph-deployment/operator-openshift.yaml --context west2
+oc create -f ceph-deployment/operator-openshift.yaml --context psi
+oc create -f ceph-deployment/operator-openshift.yaml --context aws
 ```
 
 It will take a few minutes for all of the components to deploy and for the disks to be formatted.
@@ -104,62 +104,62 @@ It will take a few minutes for all of the components to deploy and for the disks
 The toolbox pod is required to interact and configure storage. To deploy the toolbox run the following.
 
 ```
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west1 -n rook-ceph
-oc create -f ceph-deployment/post-deploy/toolbox.yaml --context west2 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context psi -n rook-ceph
+oc create -f ceph-deployment/post-deploy/toolbox.yaml --context aws -n rook-ceph
 ```
 
 Create the replica pool.
 ```
-oc create -f ceph-deployment/post-deploy/pool.yaml --context west1 -n rook-ceph
-oc create -f ceph-deployment/post-deploy/pool.yaml --context west2 -n rook-ceph
+oc create -f ceph-deployment/post-deploy/pool.yaml --context psi -n rook-ceph
+oc create -f ceph-deployment/post-deploy/pool.yaml --context aws -n rook-ceph
 ```
 
 
 ### Enable the replica pool
-On west1 run the following in the toolbox:
+On psi run the following in the toolbox:
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context psi `oc get pods -n rook-ceph --context psi | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
 
-On west2 run the following in the toolbox:
+On aws run the following in the toolbox:
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context aws `oc get pods -n rook-ceph --context aws | grep rook-ceph-tools | awk '{print $1}'`
 rbd mirror pool enable replicapool image
 rbd pool init replicapool
 ```
 
 ### Bootstrap the cluster peers
-A token will be generated on west1 which needs to be applied to west2.
+A token will be generated on psi which needs to be applied to aws.
 
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
-rbd mirror pool peer bootstrap create --site-name west1 replicapool
+oc rsh -n rook-ceph --context psi `oc get pods -n rook-ceph --context psi | grep rook-ceph-tools | awk '{print $1}'`
+rbd mirror pool peer bootstrap create --site-name psi replicapool
 eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 ```
 
-Using the value of the generated token place the output into the file */tmp/token* on west2 and then import the file.
+Using the value of the generated token place the output into the file */tmp/token* on aws and then import the file.
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context aws `oc get pods -n rook-ceph --context aws | grep rook-ceph-tools | awk '{print $1}'`
 vi /tmp/token
 eyJmc2lkIjoiNmYyZTMxNmYtMzgxZi00MTI4LTkwODEtMWY4NzdhNzZjNmYzIiwiY2xpZW50X2lkIjoicmJkLW1pcnJvci1wZWVyIiwia2V5IjoiQVFDQURSZGZzRkx3RnhBQW9Ha2VpdkRBdWpaTktvOHBWUm5CQXc9PSIsIm1vbl9ob3N0IjoiMTAuMC4yMzcuMjQ4OjY3ODksMTAuMC4xNjIuMTAyOjY3ODksMTAuMC4xMzIuNDU6Njc4OSJ9
 
-rbd mirror pool peer bootstrap import --site-name west2 replicapool /tmp/token
+rbd mirror pool peer bootstrap import --site-name aws replicapool /tmp/token
 ```
 
 ### Validate the pool status
 
 ```
-oc rsh -n rook-ceph --context west1 `oc get pods -n rook-ceph --context west1 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context psi `oc get pods -n rook-ceph --context psi | grep rook-ceph-tools | awk '{print $1}'`
 sh-4.4$ rbd mirror pool info replicapool --all
 Mode: image
-Site Name: west1
+Site Name: psi
 
 Peer Sites: 
 
 UUID: 911e08fa-5d50-45db-b35b-7737781029b7
-Name: west2
+Name: aws
 Mirror UUID: 6d64ccb7-27f2-466c-8a86-d7926cfe906b
 Direction: rx-tx
 Client: client.rbd-mirror-peer
@@ -168,15 +168,15 @@ Key: AQCjDhdflMlIDhAA+qI9dEzthQAz9q+RKuh6Cw==
 ```
 
 ```
-oc rsh -n rook-ceph --context west2 `oc get pods -n rook-ceph --context west2 | grep rook-ceph-tools | awk '{print $1}'`
+oc rsh -n rook-ceph --context aws `oc get pods -n rook-ceph --context aws | grep rook-ceph-tools | awk '{print $1}'`
 sh-4.4$ rbd mirror pool info replicapool --all
 Mode: image
-Site Name: west2
+Site Name: aws
 
 Peer Sites: 
 
 UUID: e45f5bfd-8e01-4f43-a16b-2ee29ff0ed47
-Name: west1
+Name: psi
 Mirror UUID: b86d777b-30f9-43f2-9d46-b2d922c10870
 Direction: rx-tx
 Client: client.rbd-mirror-peer
@@ -187,7 +187,7 @@ Key: AQCADRdfsFLwFxAAoGkeivDAujZNKo8pVRnBAw==
 ### Modifying the provisioner
 An extra flag is required to ensure that all of the metadata is provided when creating PVC objects to be mirrored. Add *- --extra-create-metadata=true* to the args section of the deploy. 
 ```
-oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west1
+oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context psi
 ..redacted..
       - args:
         - --csi-address=$(ADDRESS)
@@ -201,7 +201,7 @@ oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west1
 ```
 
 ```
-oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west2
+oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context aws
 ..redacted..
       - args:
         - --csi-address=$(ADDRESS)
@@ -218,8 +218,8 @@ oc edit deploy csi-rbdplugin-provisioner -n rook-ceph --context west2
 Now that the pools have been established the storage class must be created to be used by applications.
 
 ```
-oc create -f ceph-deployment/post-deploy/storageclass.yaml --context west1
-oc create -f ceph-deployment/post-deploy/storageclass.yaml --context west2
+oc create -f ceph-deployment/post-deploy/storageclass.yaml --context psi
+oc create -f ceph-deployment/post-deploy/storageclass.yaml --context aws
 ```
 
 # Application deployment and management
