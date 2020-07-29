@@ -18,7 +18,7 @@ oc create -f blog-west1.yaml
 Using the route defined within *application/wordpress/base/wordpress-route.yaml* and your web browser follow the procedure to install wordpress.
 
 ## Sync schedule
-Follow the instructions for [enabling snapshot mirroring and scheduling](../storage-schedule.md).
+Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).
 
 # Define west2
 Now you are ready to define West2. No replicas of the application are defined at that location so pods will not start.
