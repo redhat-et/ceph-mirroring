@@ -9,6 +9,7 @@ $ rbd ls replicapool
 mysql-pv-claim-wordpress3ad289a1-cece-11ea-8e1a-0a580a81021a
 wp-pv-claim-wordpress3ad28968-cece-11ea-8e1a-0a580a81021a
 ```
+NOTE: The image names will vary when deployed on your environment, But will be consistent between both clusters (same names).
 
 ### Enable Snapshot Mirroring of the Images on Primary Cluster Only (i.e. west1)
 ```
@@ -21,7 +22,6 @@ $ rbd mirror image enable replicapool/wp-pv-claim-wordpress3ad28968-cece-11ea-8e
 Mirroring enabled
 ```
 
-NOTE: The image name will vary when deployed on your environment.
 NOTE: This step only happens on the Primary Mirrored Cluster.
 
 
