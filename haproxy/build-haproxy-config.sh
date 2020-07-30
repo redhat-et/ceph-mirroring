@@ -38,4 +38,4 @@ oc --context=${CONTEXT1} -n haproxy create -f haproxy-clusterip-service.yaml
 oc --context=${CONTEXT1} -n haproxy create -f haproxy-deployment.yaml
 echo "HAProxy setup completed"
 echo "Replacing Route"
-sed -i "s/host: wordpress.demo-sysdeseng.com/${WORDPRESS_INGRESS}/g" ../application/wordpress/base/wordpress-route.yaml
+sed -i "s/host: wordpress.demo-sysdeseng.com/host: ${WORDPRESS_INGRESS}/g" ../application/wordpress/base/wordpress-route.yaml
