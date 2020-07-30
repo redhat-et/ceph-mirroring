@@ -6,11 +6,31 @@ Rather than creating the applications using the UI or via the Argo binary. YAML 
 
 Export the KUBECONFIG and create the repository.
 ```
-export KUBECONFIG=~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig:~/git/sleepy-admin/submariner/submariner-aws/auth/kubeconfig
+export KUBECONFIG=/home/user/west1/auth/kubeconfig:/home/user/west2/auth/kubeconfig
 oc apply -f repo/application-repo.yaml
 ```
 
 Next we will create the Application on our first cluster.
 ```
-oc create -f west1/wordpress.yaml
+oc create -f west1/wordpress.yaml --context west1 -n argocd
+```
 
+Using the route defined within *application/wordpress/base/wordpress-route.yaml* and your web browser follow the procedure to install wordpress.
+
+## Sync schedule
+Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).
+
+# Define west2
+Now you are ready to define West2. No replicas of the application are defined at that location so pods will not start.
+
+```
+oc create -f west2-subscription.yaml --context west2 -n argocd
+```
+
+# Scaling down west1
+We are now ready to begin the process of switching to west2. Modify *application/wordpress/overlays/west1/wordpress-deployment.yaml* and *application/wordpress/overlays/west1/mysql-deployment.yaml* setting the replicas to 0. Push the changes to your git repository.
+
+```
+git commit -am 'site1 down'
+git push origin master
+```

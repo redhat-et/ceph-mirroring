@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wordpress
+  namespace: argocd
+spec:
+  destination:
+    namespace: wordpress
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: application/wordpress/overlays/west1
+    repoURL: https://github.com/redhat-et/ceph-mirroring.git 
+    targetRevision: submariner
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
