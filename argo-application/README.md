@@ -34,3 +34,70 @@ We are now ready to begin the process of switching to west2. Modify *application
 git commit -am 'site1 down'
 git push origin master
 ```
+
+## Sync
+Define the sync within *west2* cluster of ArgoCD. This will cause the storage to sync from the primary to the standby cluster.
+```
+oc create -f site-sync/sync.yaml --context west2 -n argocd
+```
+
+## Switching primary sites
+It is now time to define the ArgoCD application which will launch a job to switch the primary and standby sites. A sleep has been added to this step to ensure that the sync from the previous step has completed.
+```
+sleep 3m
+oc create -f site-change/both.yaml --context west1 -n argocd
+oc create -f site-change/both.yaml --context west2 -n argocd
+```
+
+# Bringing up west2
+It is now time to bring up west2. Modify *application/wordpress/overlays/west2/wordpress-deployment.yaml* and *application/wordpress/overlays/west2/mysql-deployment.yaml* setting the replicas to 1. Push the changes to your git repository.
+
+```
+git commit -am 'site2 up'
+git push origin master
+```
+
+ArgoCD will automatically deploy the application. Once the application pods have started you can use the route defined in *application/wordpress/base/wordpress-route.yaml* to validate that the application is indeed running on west2.
+
+# Returning to west1
+To return to west1 the process is somewhat similar. Modify *application/wordpress/overlays/west2/wordpress-deployment.yaml* and *application/wordpress/overlays/west2/mysql-deployment.yaml* setting the replicas to 0. Push the changes to your git repository
+
+```
+git commit -am 'site2 down'
+git push origin master
+```
+
+## Syncing the storage
+We will delete the sync application from *west2* and move it to *west1*.
+
+```
+oc delete -f site-sync/sync.yaml --context west2 -n argocd
+oc create -f site-sync/sync.yaml --context west1 -n argocd
+```
+
+This will cause the sync job to be launched on west1.
+
+
+## Switching primary sites
+The application is already defined in ArgoCD which will trigger the standby to become primary but we need to modify the job number and commit the code. This will cause a new job to be launched on the west sites. We will increase the number at the end of the job name by 1.
+
+```
+sleep 3m
+vi rbd-jobs/both/all-in-one.yaml
+..redacted..
+  name: total-job-16
+
+Commit the code which will force the job to create.
+```
+git commit -am 'launch of job to promote
+git push origin master
+```
+
+# Bringing up west1
+It is now time to bring back west1. Modify *application/wordpress/overlays/west1/wordpress-deployment.yaml* and *application/wordpress/overlays/west1/mysql-deployment.yaml* setting the replicas to 1. Push the changes to your git repository.
+
+```
+git commit -am 'site1 up'
+git push origin master
+```
+This will trigger the west1 pods to launch. This will conclude the fail back to west1 and all of our data should be present.
