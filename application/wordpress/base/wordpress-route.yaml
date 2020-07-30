@@ -11,7 +11,7 @@ metadata:
   name: wordpress
   namespace: wordpress
 spec:
-  host: wordpress.demo-sysdeseng.com
+  host: wordpress-ingress.apps.submariner-aws.octo-emerging.redhataicoe.com
   port:
     targetPort: port-1
   to:
