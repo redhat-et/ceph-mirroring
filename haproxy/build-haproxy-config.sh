@@ -10,18 +10,12 @@ fi
 
 CONTEXT1=$(oc config get-contexts -o name | sed -n 1p)
 CONTEXT2=$(oc config get-contexts -o name | sed -n 2p)
-for cluster in $CONTEXT1 $CONTEXT2
-  do
-    oc --context=$cluster -n default create route edge wildcarddomain --service=test --port=8080 > /dev/null
-  done
-  WILDCARD_DOMAIN_CL1=$(oc --context=${CONTEXTS1} -n default get route wildcarddomain -o jsonpath='{.status.ingress[*].host}' | sed "s/wildcarddomain-default.\(.*\)/\1/g")
-  WILDCARD_DOMAIN_CL2=$(oc --context=${CONTEXTS2} -n default get route wildcarddomain -o jsonpath='{.status.ingress[*].host}' | sed "s/wildcarddomain-default.\(.*\)/\1/g")
-  for cluster in $CONTEXT1 $CONTEXT2 
-  do
-    oc --context=$cluster -n default delete route wildcarddomain > /dev/null
-done
+WILDCARD_DOMAIN_CL1=$(oc --context=${CONTEXT1} -n openshift-console get route console -o jsonpath='{.status.ingress[*].host}' | sed "s/console-openshift-console.\(.*\)/\1/g")
+WILDCARD_DOMAIN_CL2=$(oc --context=${CONTEXT2} -n openshift-console get route console -o jsonpath='{.status.ingress[*].host}' | sed "s/console-openshift-console.\(.*\)/\1/g")
+
 
 echo "Deploying HAProxy on ${CONTEXT1} cluster in namespace haproxy"
+sleep 2s
 oc create ns haproxy --context ${CONTEXT1}
 WORDPRESS_INGRESS=wordpress-ingress.${WILDCARD_DOMAIN_CL1}
 oc --context=${CONTEXT1} -n haproxy create route edge haproxy-lb --service=haproxy-lb-service --port=8080 --insecure-policy=Allow --hostname=${HAPROXY_LB_ROUTE}
@@ -39,3 +33,5 @@ oc --context=${CONTEXT1} -n haproxy create -f haproxy-deployment.yaml
 echo "HAProxy setup completed"
 echo "Replacing Route"
 sed -i "s/host: wordpress.demo-sysdeseng.com/${WORDPRESS_INGRESS}/g" ../application/wordpress/base/wordpress-route.yaml
+
+echo "The app will be available through HAProxy at ${WORDPRESS_INGRESS}"
