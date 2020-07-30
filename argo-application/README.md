@@ -86,6 +86,7 @@ sleep 3m
 vi rbd-jobs/both/all-in-one.yaml
 ..redacted..
   name: total-job-16
+```
 
 Commit the code which will force the job to create.
 ```
@@ -100,4 +101,5 @@ It is now time to bring back west1. Modify *application/wordpress/overlays/west1
 git commit -am 'site1 up'
 git push origin master
 ```
+
 This will trigger the west1 pods to launch. This will conclude the fail back to west1 and all of our data should be present.
