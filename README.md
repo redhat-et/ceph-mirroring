@@ -246,5 +246,5 @@ Depending on what tooling is available in your clusters the option exists to use
 
 [Tekton](./tekton)
 
-[Manual](./application)
+[Manual](./manual)
 
