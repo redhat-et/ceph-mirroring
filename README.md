@@ -242,7 +242,7 @@ Depending on what tooling is available in your clusters the option exists to use
 
 [Advanced Cluster Management For Kubernetes Steps](./acm-application-configuration)
 
-[ArgoCD](./argo-applications)
+[ArgoCD](./argo-application)
 
 [Tekton](./tekton)
 
