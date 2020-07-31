@@ -50,6 +50,11 @@ git push origin master
 # ceph-mirroring
 The goal of this repository is to allow for users to create workflows using available tooling to migrate an application from one cluster to another cluster. This demonstration requires that two clusters have been created and connectivity exists between the two host neworks.
 
+Connectivity is required for this scenario because it ensures that mirroring can be established. Connectivity between clusters can be established in mulitple ways.
+
+* VPN connectivity between datacenters whether on-premise or in the cloud
+* Using [submariner](https://submariner.io/)
+
 ## Ceph mirroring setup
 Ensure the following ports are opened between both sites.
 * 4500
@@ -113,7 +118,6 @@ Create the replica pool.
 oc create -f ceph-deployment/post-deploy/pool.yaml --context west1 -n rook-ceph
 oc create -f ceph-deployment/post-deploy/pool.yaml --context west2 -n rook-ceph
 ```
-
 
 ### Enable the replica pool
 On west1 run the following in the toolbox:
