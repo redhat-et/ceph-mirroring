@@ -92,6 +92,15 @@ oc create -f ceph-deployment/common.yaml --context west1
 oc create -f ceph-deployment/common.yaml --context west2
 ```
 
+If you are using submariner modify *cluster-1.3.6-pvc.yaml* before deploying. Making the following change.
+```
+  # comment out this network section
+  # when using Submariner
+  # network:
+  # enable host networking
+  # provider: host
+```
+
 ```
 oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west1
 oc create -f ceph-deployment/cluster-1.3.6-pvc.yaml --context west2
