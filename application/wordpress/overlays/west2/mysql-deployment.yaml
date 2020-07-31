@@ -9,4 +9,4 @@ metadata:
   name: mysql
   namespace: wordpress
 spec:
-  replicas: 1
+  replicas: 0
