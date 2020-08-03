@@ -1,0 +1,100 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: execute-promote-demote
+spec:
+#  inputs:
+#    params:
+#      - name: pool
+#        type: string
+#        description: name of pool
+  steps:
+    - name: exec-promote-demote
+      image: quay.io/rcook/storage-rehost:toolbox
+      command:
+        - "bash"
+        - "-c"
+        - |
+          pool="replicapool"
+          arr=()
+          while IFS= read -r line; do
+            arr+=( "$pool/$line" )
+          done < <( rbd ls $pool )
+          for i in "${arr[@]}"
+          do
+            until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
+            do
+              sleep 1;
+            done
+          done
+          j=0
+          demoted=()
+          for i in "${arr[@]}"
+          do
+            value=$( rbd mirror image status $i | head -4 | tail -1 )
+            if [[ $value == *"image is primary"* ]]; then
+              rbd mirror image demote $i
+              demoted[$j]="Y"
+            else
+              demoted[$j]="N"
+            fi
+            ((j++))
+          done
+          k=0
+          for i in "${arr[@]}"
+          do
+            if [[ ${demoted[$k]} == "N" ]]; then
+              valuep=$( rbd mirror image status $i | head -4 | tail -1 )
+              if [[ $valuep == *"image is primary"* ]]; then
+                echo "Image is already primary - do not promote $i"
+              else
+                echo "Promoting image $i"
+                until rbd mirror image promote $i | head -1 | tail -1 | grep -q "Image";
+                do
+                  echo "... waiting to promote"
+                  sleep 3;
+                done
+              fi
+            else
+              echo "Image was just demoted - do not promote"
+            fi
+            ((k++))
+          done
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: ROOK_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: admin-secret
+      volumeMounts:
+        - mountPath: /etc/ceph
+          name: ceph-config
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
+  sidecars:
+    - name: sidecar-toolbox
+      image: quay.io/rcook/storage-rehost:toolbox
+      command: ["/tini"]
+      args: ["-g", "-s", "--", "/usr/local/bin/toolbox.sh", "--skip-watch"]
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: ROOK_ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rook-ceph-mon
+              key: admin-secret
+      volumeMounts:
+        - mountPath: /etc/ceph
+          name: ceph-config
+        - name: mon-endpoint-volume
+          mountPath: /etc/rook
+  volumes:
+    - name: mon-endpoint-volume
+      configMap:
+        name: rook-ceph-mon-endpoints
+        items:
+        - key: data
+          path: mon-endpoints
+    - name: ceph-config
+      emptyDir: {}
