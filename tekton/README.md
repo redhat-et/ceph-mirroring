@@ -54,24 +54,24 @@ We now need to tie in the routes created by Tekton into GitHub.
 Open your browser and go to your fork of this repository.
 
 Click Settings
-![GitHub](images/github.png){:height="700px" width="400px"}
+![GitHub](images/github.png)
 
 Next, Click Webhooks
-![Webhooks](images/settings.png){:height="700px" width="400px"}
+![Webhooks](images/settings.png)
 
 Add webhook
 
 NOTE: Enter your GitHub password if prompted
-![add](images/add.png){:height="700px" width="400px"}
+![add](images/add.png)
 
 Using the value of the routes first create a webhook for west1 and then do the same steps for west2.
 
 NOTE: Ensure you create two routes.
 
-![routes](images/route.png){:height="700px" width="400px"}
+![routes](images/route.png)
 
 Verify two webhooks have been loaded into GitHub.
-![hooks](images/hooks.png){:height="700px" width="400px"}
+![hooks](images/hooks.png)
 
 ## Sync schedule
 Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).
