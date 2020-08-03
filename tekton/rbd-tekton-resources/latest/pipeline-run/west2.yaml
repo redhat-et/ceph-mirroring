@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: resync-images
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: rbd-resync-images

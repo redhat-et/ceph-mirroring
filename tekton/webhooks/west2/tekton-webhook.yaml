@@ -20,8 +20,8 @@ spec:
         - name: revision
           value: master
         - name: url
-          value: https://github.com/cooktheryan/multisite-application.git
-    - apiVersion: tekton.dev/v1alpha1
+          value: https://github.com/redhat-et/ceph-mirroring.git
+    - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
         name: wordpress-pipeline-run-$(uid)
@@ -35,7 +35,7 @@ spec:
               name: multisite-$(uid)
         params:
           - name: pathToYamlFile
-            value: "tekton/wordpress/overlays/site1"
+            value: "application/wordpress/overlays/west2"
         serviceAccountName: pipeline
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
@@ -45,9 +45,9 @@ metadata:
 spec:
   params:
     - name: revision
-      value: $(body.head_commit.id)
+      value: master
     - name: url
-      value: $(body.repository.url)
+      value: https://github.com/redhat-et/ceph-mirroring.git 
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener

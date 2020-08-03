@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: deploy-pipeline
@@ -15,7 +15,7 @@ spec:
   tasks:
   - name: deploy-to-cluster
     taskRef:
-      name: deploy-using-kubectl
+      name: deploy-using-kustomize
     params:
       - name: pathToYamlFile
         value:  "$(params.pathToYamlFile)"
