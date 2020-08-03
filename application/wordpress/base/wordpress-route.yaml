@@ -11,7 +11,7 @@ metadata:
   name: wordpress
   namespace: wordpress
 spec:
-  host: wordpress.demo-sysdeseng.com
+  host: wordpress.octo.eng.rdu2.redhat.com
   port:
     targetPort: port-1
   to:
