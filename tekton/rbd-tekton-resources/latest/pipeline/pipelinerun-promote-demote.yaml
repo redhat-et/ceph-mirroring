@@ -1,8 +1,0 @@
-apiVersion: tekton.dev/v1alpha1
-kind: PipelineRun
-metadata:
-  name: promote-demote-images
-spec:
-  serviceAccountName: pipeline
-  pipelineRef:
-    name: rbd-promote-demote-images
