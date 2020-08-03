@@ -1,6 +1,8 @@
 # Manual Mirroring
 The steps defined in this README will walk through the process of deploy the application and failing over to another site manually.
 
+NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer.
+
 ## Deploying West1
 We will use *kubectl* due to the application files being in Kustomize.
 

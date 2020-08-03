@@ -1,6 +1,16 @@
 # Argo
 We will assume that Argo has been installed on each cluster using either the YAML from the git repository of ArgoCD(https://github.com/argoproj/argo-cd/releases/tag/v1.6.1) or the ArgoCD operator. We will be installing ArgoCD on each cluster to have the highest uptime. Each cluster will operate independently of one another in regards to application management and placement.
 
+NOTE: Before beginning fork this repository and modify the following files as they relate to your repository.
+
+```
+./repo/application-repo.yaml
+./site-change/both.yaml 
+./site-sync/sync.yaml 
+./west1/wordpress.yaml 
+./west2/wordpress.yaml
+```
+
 # Argo Apps
 Rather than creating the applications using the UI or via the Argo binary. YAML can be used to create the applications.
 
@@ -10,12 +20,15 @@ export KUBECONFIG=/home/user/west1/auth/kubeconfig:/home/user/west2/auth/kubecon
 oc apply -f repo/application-repo.yaml
 ```
 
+NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer and push to your git repository.
+
 Next we will create the Application on our first cluster.
 ```
 oc create -f west1/wordpress.yaml --context west1 -n argocd
 ```
 
 Using the route defined within *application/wordpress/base/wordpress-route.yaml* and your web browser follow the procedure to install wordpress.
+
 
 ## Sync schedule
 Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).

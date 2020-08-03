@@ -1,6 +1,14 @@
 # Advanced Cluster Management for Kubernetes
 We will create various ACM applications which will be used to manage all of our storage and application objects. This document assumes that ACM has been installed and two clusters have been loaded into ACM as spokes. For directions check out https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/1.0/html/about_red_hat_advanced_cluster_management_for_kubernetes/welcome-to-red-hat-advanced-cluster-management-for-kubernetes#introduction
 
+NOTE: Before beginning fork this repository and specify your git repository in the following files.
+
+```
+./channel.yaml
+./storage-management/01_channel.yaml
+./storage-sync-management/channel.yaml
+```
+
 ## Deploying to West1
 First we need to deploy the application to our first location.
 
@@ -16,6 +24,8 @@ oc create -f blog-west1.yaml
 
 ## Install wordpress
 Using the route defined within *application/wordpress/base/wordpress-route.yaml* and your web browser follow the procedure to install wordpress.
+
+NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer and push to your git repository.
 
 ## Sync schedule
 Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).

@@ -1,5 +1,5 @@
 # Before starting
-Fork this repository. Ensure two clusters have already been deployed. The kubeconfigs must be modified to allow them to be identified with unique contexts. By default, clusters are deployed with the context name of admin. We will modify that to have the example name of *west1* and *west2*. Once that has been done we will export the configuration and validate we have two contexts.
+Fork this repository! Ensure two clusters have already been deployed. The kubeconfigs must be modified to allow them to be identified with unique contexts. By default, clusters are deployed with the context name of admin. We will modify that to have the example name of *west1* and *west2*. Once that has been done we will export the configuration and validate we have two contexts.
 
 ```
 sed -i 's/admin/west1/g' west1/auth/kubeconfig
