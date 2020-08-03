@@ -3,11 +3,11 @@ kind: Task
 metadata:
   name: execute-resync
 spec:
-  inputs:
-    params:
-      - name: p
-        type: string
-        description: name of pool
+#  inputs:
+#    params:
+#      - name: pool
+#        type: string
+#        description: name of pool
   steps:
     - name: exec-rbd-command
       image: quay.io/rcook/storage-rehost:toolbox
@@ -15,7 +15,7 @@ spec:
         - "bash"
         - "-c"
         - |
-          pool=$(inputs.params.p)
+          pool="replicapool"
           arr=()
           while IFS= read -r line; do
             arr+=( "$pool/$line" )
@@ -65,12 +65,11 @@ spec:
         - name: mon-endpoint-volume
           mountPath: /etc/rook
   volumes:
-      volumes:
-      - name: mon-endpoint-volume
-        configMap:
-          name: rook-ceph-mon-endpoints
-          items:
-          - key: data
-            path: mon-endpoints
-      - name: ceph-config
-        emptyDir: {}
+    - name: mon-endpoint-volume
+      configMap:
+        name: rook-ceph-mon-endpoints
+        items:
+        - key: data
+          path: mon-endpoints
+    - name: ceph-config
+      emptyDir: {}
