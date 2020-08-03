@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: rbd-demote-images
+spec:
+#  params:
+#    - name: p
+#      type: string 
+#      default: "replicapool"
+  tasks:
+    - name: demote-images
+      retries: 3
+      taskRef:
+        name: execute-demote
+#      params:
+#        - name: pool
+#          value: "$(params.p)"

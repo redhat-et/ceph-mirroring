@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: rbd-promote-images
+spec:
+#  params:
+#    - name: p
+#      type: string 
+#      default: "replicapool"
+  tasks:
+    - name: promote-images
+      retries: 3
+      taskRef:
+        name: execute-promote
+#      params:
+#        - name: pool
+#          value: "$(params.p)"
