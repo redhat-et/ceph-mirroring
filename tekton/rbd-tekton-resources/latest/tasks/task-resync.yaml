@@ -30,7 +30,7 @@ spec:
               echo 'image $i is being resync'
               rbd mirror image resync "$i"
             fi
-            until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:" || :;
+            until rbd mirror image status $i || : | head -2 | tail -1 | grep -q "global_id:";
             do
               echo '... waiting for image to come back available'
               sleep 1;
