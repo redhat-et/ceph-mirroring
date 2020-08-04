@@ -96,7 +96,7 @@ oc create -f rbd-tekton-resources/latest/pipeline -n rook-ceph --context west2
 
 We will use a pipeline run to execute the sync.
 ```
-oc create -f pipeline-run/west2.yaml -n rook-ceph --context west2
+oc create -f rbd-tekton-resources/latest/pipeline-run/resync.yaml -n rook-ceph --context west2
 ```
 
 ## Switching primary sites
@@ -107,9 +107,9 @@ oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-promote.yaml -
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-promote.yaml --context west2 -n rook-ceph
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-demote.yaml --context west1 -n rook-ceph
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-demote.yaml --context west2 -n rook-ceph
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west1 -n rook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-demote.yaml --context west1 -n rook-ceph
 sleep 30s
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-promote.yaml --context west2 -n rook-ceph
 ```
 
 # Bringing up west2
@@ -135,7 +135,7 @@ We will delete the sync pipelinerun from *west2* and move it to *west1*.
 
 ```
 oc delete pr/resync-images --context west2 -n rook-ceph
-oc create -f pipeline-run/west1.yaml --context west1 -n rook-ceph
+oc create -f rbd-tekton-resources/latest/pipeline-run/resync.yaml --context west1 -n rook-ceph
 ```
 
 This will cause the sync job to be launched on west1.
@@ -145,11 +145,11 @@ This will cause the sync job to be launched on west1.
 The pipeline is already defined in Tektkon which will trigger the standby to become primary but we need to remove the old pipeline run and then execute it on the other cluster. 
 
 ```
-oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rook-ceph
-oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west1 -n rook-ceph
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west2 -n rook-ceph
+oc delete -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-promote.yaml --context west2 -n rook-ceph
+oc delete -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-demote.yaml --context west1 -n rook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-demote.yaml --context west2 -n rook-ceph
 sleep 30s
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west1 -n rook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline-run/pipelinerun-promote.yaml --context west1 -n rook-ceph
 ```
 
 # Bringing up west1
