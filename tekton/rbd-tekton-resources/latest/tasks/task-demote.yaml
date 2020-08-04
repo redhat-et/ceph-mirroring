@@ -22,8 +22,10 @@ spec:
           done < <( rbd ls $pool )
           for i in "${arr[@]}"
           do
+            echo "checking to demote $i"
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
             do
+              echo "... waiting for image to be available"
               sleep 1;
             done
           done
@@ -33,6 +35,9 @@ spec:
             value=$( rbd mirror image status $i | head -4 | tail -1 )
             if [[ $value == *"image is primary"* ]]; then
               rbd mirror image demote $i
+              echo "... image $i demoted"
+            else
+              echo "... image $i is already non-primary"
             fi
             ((j++))
           done
