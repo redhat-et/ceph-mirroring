@@ -107,9 +107,9 @@ oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-promote.yaml -
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-promote.yaml --context west2 -n rook-ceph
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-demote.yaml --context west1 -n rook-ceph
 oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipeline-demote.yaml --context west2 -n rook-ceph
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west2 -n rcook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west1 -n rook-ceph
 sleep 30s
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rcook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rook-ceph
 ```
 
 # Bringing up west2
@@ -145,11 +145,11 @@ This will cause the sync job to be launched on west1.
 The pipeline is already defined in Tektkon which will trigger the standby to become primary but we need to remove the old pipeline run and then execute it on the other cluster. 
 
 ```
-oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rcook-ceph
-oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west1 -n rcook-ceph
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west2 -n rcook-ceph
+oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west2 -n rook-ceph
+oc delete -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west1 -n rook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-demote.yaml --context west2 -n rook-ceph
 sleep 30s
-oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west1 -n rcook-ceph
+oc create -f tekton/rbd-tekton-resources/latest/pipeline/pipelinerun-promote.yaml --context west1 -n rook-ceph
 ```
 
 # Bringing up west1
