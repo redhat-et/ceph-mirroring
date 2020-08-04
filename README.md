@@ -3,8 +3,8 @@ Fork this repository. Ensure two clusters have already been deployed. The kubeco
 
 ```
 sed -i 's/admin/psi/g' ~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig
-sed -i 's/admin/aws/g' ~/git/sleepy-admin/submariner/submariner-aws/auth/kubeconfig
-export KUBECONFIG=~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig:~/git/sleepy-admin/submariner/submariner-aws/auth/kubeconfig
+sed -i 's/admin/aws/g' ~/git/psi-submariner-aws/submariner-aws/auth/kubeconfig
+export KUBECONFIG=~/go/src/github.com/dimaunx/ocpup/.config/cl1/auth/kubeconfig:~/git/psi-submariner-aws/submariner-aws/auth/kubeconfig
 oc config get-contexts
 CURRENT   NAME    CLUSTER   AUTHINFO   NAMESPACE
 *         psi   psi     psi      
