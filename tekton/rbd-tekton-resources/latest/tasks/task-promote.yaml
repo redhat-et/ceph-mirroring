@@ -22,8 +22,10 @@ spec:
           done < <( rbd ls $pool )
           for i in "${arr[@]}"
           do
+            echo "checking image $i for promotion"
             until rbd mirror image status $i | head -2 | tail -1 | grep -q "global_id:";
             do
+              echo "... waiting for image to be available"
               sleep 1;
             done
           done
@@ -32,10 +34,15 @@ spec:
           do
             valuep=$( rbd mirror image status $i | head -4 | tail -1 )
             if [[ $valuep == *"image is primary"* ]]; then
-              echo "Image is already primary - do not promote $i"
+              echo "... Image is already primary - do not promote $i"
             else
-              echo "Promoting image $i"
-              rbd mirror image promote $i
+              echo "... Promoting image $i"
+              until rbd mirror image promote $i | head -1 | tail -1 | grep -q "Image";
+              do
+                echo "... ... waiting to promote"
+                sleep 3;
+              done
+              echo "... Promoted image $i"
             fi
             ((k++))
           done
