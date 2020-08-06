@@ -1,5 +1,5 @@
 # Argo
-We will assume that Argo has been installed on each cluster using either the YAML from the git repository of ArgoCD(https://github.com/argoproj/argo-cd/releases/tag/v1.6.1) or the ArgoCD operator. We will be installing ArgoCD on each cluster to have the highest uptime. Each cluster will operate independently of one another in regards to application management and placement.
+We will assume that Argo has been installed on each cluster using either the YAML from the git repository of ArgoCD(https://github.com/argoproj/argo-cd/releases/tag/v1.6.1) or the ArgoCD operator. We will be installing ArgoCD on each cluster to have the highest uptime. Each cluster will operate independently of one another in regards to application management and placement. 
 
 NOTE: Before beginning fork this repository and modify the following files as they relate to your repository.
 
