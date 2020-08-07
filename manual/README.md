@@ -16,6 +16,11 @@ Using the route defined within *application/wordpress/base/wordpress-route.yaml*
 ## Sync schedule
 Follow the instructions for [enabling and scheduling snapshot mirroring](../storage-schedule.md).
 
+## Access the App and Add Some Data
+From a browser should be able to access via [http://wordpress.octo.eng.rdu2.redhat.com/](http://wordpress.octo.eng.rdu2.redhat.com/)
+
+
+
 # Define west2
 Now you are ready to define West2. No replicas of the application are defined at that location so pods will not start.
 
