@@ -248,3 +248,5 @@ Depending on what tooling is available in your clusters the option exists to use
 
 [Manual](./manual)
 
+[Manual with Hard Failure on Site1](./manual-hard-failure)
+
