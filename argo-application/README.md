@@ -17,7 +17,8 @@ Rather than creating the applications using the UI or via the Argo binary. YAML 
 Export the KUBECONFIG and create the repository.
 ```
 export KUBECONFIG=/home/user/west1/auth/kubeconfig:/home/user/west2/auth/kubeconfig
-oc apply -f repo/application-repo.yaml
+oc apply -f repo/application-repo.yaml --context west1 -n argocd
+oc apply -f repo/application-repo.yaml --context west2 -n argocd
 ```
 
 NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer and push to your git repository.
