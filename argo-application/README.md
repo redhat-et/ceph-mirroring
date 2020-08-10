@@ -38,7 +38,7 @@ Follow the instructions for [enabling and scheduling snapshot mirroring](../stor
 Now you are ready to define West2. No replicas of the application are defined at that location so pods will not start.
 
 ```
-oc create -f west2-subscription.yaml --context west2 -n argocd
+oc create -f west2/wordpress.yaml --context west2 -n argocd
 ```
 
 # Scaling down west1
