@@ -34,7 +34,7 @@ kubectl apply -k ../application/wordpress/overlays/west2 --context west2
 # Hard Stop on west1 and Recovery
 We are now ready to Bring Down West 1 - in AWS stop all instances.
 
-**NOTE** *IMPORTANT*
+**NOTE:** *IMPORTANT!!!*
 Once the primary site goes down (non-gracefully), we have a few issues to sort out.
 - Any data NOT SYNC'd during the failure will most likely be lost
 - Once detected, we have a split brain scenario where a decision has to be made as to which data set (west1 or west2) will become our "best" data
