@@ -1,5 +1,5 @@
 # Manual Mirroring with Hard Site Failure - West 1 is down, How to Recover?
-The steps defined in this README will walk through the process of deploy the application and failing over to another site manually.
+The steps defined in this README will walk through the process of deploy the application and failing over to another site after a hard failure. This will also discuss the steps needed to recover from this event and get your RBD Image pools back into working state.
 
 **NOTE:** Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer.
 
