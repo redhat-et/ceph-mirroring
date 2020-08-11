@@ -3,8 +3,7 @@ The steps defined in this README will walk through the process of deploy the app
 
 **NOTE:** Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer.
 
-**NOTE:** Using a GitOps tool like Argo CD or Tekton can help to manage the flow of the applications and data in this scenario, for example, when the primary site goes down and when it comes back up, having a tool watching your configuration repo will give more control on when an application is run.
-
+It is highly suggested to use a GitOps tool like Argo CD or Red Hat Advanced Cluster Management to manage the flow of the applications and data in this scenario, for example, when the primary site goes down and when it comes back up, having a tool watching your configuration repo will give more control on when an application is run. This will ensure that an application does not become healthy on the load balancer which would cause traffic to be sent to the non-primary side.
 
 ## Deploying West1
 We will use *kubectl* due to the application files being in Kustomize.
@@ -21,7 +20,6 @@ Follow the instructions for [enabling and scheduling snapshot mirroring](../stor
 
 ## Access the App and Add Some Data
 From a browser should be able to access via [http://wordpress.octo.eng.rdu2.redhat.com/](http://wordpress.octo.eng.rdu2.redhat.com/)
-
 
 
 # Define west2
