@@ -12,13 +12,15 @@ NOTE: Before beginning fork this repository and modify the following files as th
 ```
 
 # Argo Apps
-Rather than creating the applications using the UI or via the Argo binary. YAML can be used to create the applications.
+Rather than creating the applications using the UI or via the Argo binary. YAML can be used to create the applications. Some extra permissions have been given to the Argo CD service account because we would like it to have full management control of our cluster.
 
 Export the KUBECONFIG and create the repository.
 ```
 export KUBECONFIG=/home/user/west1/auth/kubeconfig:/home/user/west2/auth/kubeconfig
 oc apply -f repo/application-repo.yaml --context west1 -n argocd
 oc apply -f repo/application-repo.yaml --context west2 -n argocd
+oc apply -f argocd-extra-permissions --context west1 -n argocd
+oc apply -f argocd-extra-permissions --context west2 -n argocd
 ```
 
 NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer and push to your git repository.
