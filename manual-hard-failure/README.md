@@ -1,7 +1,10 @@
-# Manual Mirroring with Hard Site Failure - West 1 is down
+# Manual Mirroring with Hard Site Failure - West 1 is down, How to Recover?
 The steps defined in this README will walk through the process of deploy the application and failing over to another site manually.
 
-NOTE: Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer.
+**NOTE:** Before beginning ensure that you modify *application/wordpress/base/wordpress-route.yaml* to point to your Load balancer.
+
+**NOTE:** Using a GitOps tool like Argo CD or Tekton can help to manage the flow of the applications and data in this scenario, for example, when the primary site goes down and when it comes back up, having a tool watching your configuration repo will give more control on when an application is run.
+
 
 ## Deploying West1
 We will use *kubectl* due to the application files being in Kustomize.
@@ -31,7 +34,7 @@ kubectl apply -k ../application/wordpress/overlays/west2 --context west2
 # Hard Stop on west1 and Recovery
 We are now ready to Bring Down West 1 - in AWS stop all instances.
 
-*[NOTE]* *IMPORTANT*
+**NOTE** *IMPORTANT*
 Once the primary site goes down (non-gracefully), we have a few issues to sort out.
 - Any data NOT SYNC'd during the failure will most likely be lost
 - Once detected, we have a split brain scenario where a decision has to be made as to which data set (west1 or west2) will become our "best" data
@@ -75,7 +78,7 @@ sh-4.4$ rbd mirror pool demote replicapool
 ## Resync the Images From West2 to West1
 Flagging the images for *resync* will get all the data that was now flowing into West 2 during the failure outage.
 
-*[NOTE]* This can take some time as the images are basically deleted and recreated on EACH resync issued command.
+**NOTE:** This can take some time as the images are basically deleted and recreated on EACH resync issued command.
          If it is a large data set and the outage was long, it might make sense to do a full maintenance window to restore the new images
          also bringing down all applications so NO NEW DATA can flow to the Primary.
 
@@ -102,7 +105,7 @@ Simply scale down the application by setting the replicas to 0 and then apply th
 kubectl apply -k ../application/wordpress/overlays/west2 --context west2
 ```
 
-*[NOTE]* At this point, no applications are running
+**NOTE:** At this point, no applications are running
 
 Demote the Images
 
